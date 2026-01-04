@@ -20,6 +20,7 @@ Gemfile.lock
 # Build outputs
 dist/
 build/
+pkg/
 *.exe
 *.dll
 *.so

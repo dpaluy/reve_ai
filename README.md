@@ -195,6 +195,12 @@ bundle exec rake test
 bundle exec rubocop
 ```
 
+## Release  
+
+```sh 
+bundle exec rake release
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/dpaluy/reve_ai.
