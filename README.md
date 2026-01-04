@@ -37,6 +37,18 @@ response.credits_used   # => 18
 response.credits_remaining # => 982
 ```
 
+Save the image to a file:
+
+```ruby
+require "base64"
+
+image_data = Base64.decode64(response.image)
+
+File.open("output.png", "wb") do |f|
+  f.write(image_data)
+end
+```
+
 With aspect ratio:
 
 ```ruby

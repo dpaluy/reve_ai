@@ -50,5 +50,6 @@ doc/
 AGENTS.md
 CLAUDE.md
 
+.agents.yml
 .agents.local.yml
 docs/
