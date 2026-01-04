@@ -1,0 +1,6 @@
+--markup markdown
+--readme README.md
+--title "ReveAI Ruby Client"
+--protected
+--no-private
+lib/**/*.rb
