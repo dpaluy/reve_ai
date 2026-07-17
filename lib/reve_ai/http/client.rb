@@ -39,10 +39,11 @@ module ReveAI
         @configuration = configuration
       end
 
-      # Makes a POST request to the API.
+      # Makes a GET request to the API.
       #
-      # @param path [String] API endpoint path (e.g., "/v1/image/create")
-      # @param body [Hash] Request body to send as JSON
+      # @param path [String] API endpoint path (e.g., "/v1/image/effect")
+      # @param params [Hash, nil] Query parameters to merge into the URL
+      #   (e.g., { source: "project" })
       #
       # @return [Response] Parsed API response
       #
@@ -59,10 +60,64 @@ module ReveAI
       # @raise [ServerError] on 5xx responses
       #
       # @api private
-      def post(path, body = {})
+      def get(path, params: nil)
         normalized_path = path.sub(%r{^/}, "")
-        response = connection.post(normalized_path) { |req| req.body = JSON.generate(body) }
+        response = perform_request do |conn|
+          conn.get(normalized_path) { |req| req.params.update(params) if params }
+        end
         handle_response(response)
+      end
+
+      # Makes a POST request to the API.
+      #
+      # @param path [String] API endpoint path (e.g., "/v1/image/create")
+      # @param body [Hash] Request body to send as JSON
+      # @param params [Hash, nil] Query parameters to merge into the URL
+      #   (e.g., { breadcrumb: "my-tracking-value" })
+      # @param accept [String, nil] Per-request Accept header override
+      #   (e.g., "image/webp"). The connection default stays "application/json".
+      #
+      # @return [Response] Parsed API response. When the response Content-Type
+      #   is +image/*+, the body is the raw image String (bytes), not a Hash.
+      #
+      # @raise [TimeoutError] if request times out
+      # @raise [ConnectionError] if connection fails
+      # @raise [NetworkError] for other network errors
+      # @raise [BadRequestError] on 400 responses
+      # @raise [UnauthorizedError] on 401 responses
+      # @raise [InsufficientCreditsError] on 402 responses
+      # @raise [ForbiddenError] on 403 responses
+      # @raise [NotFoundError] on 404 responses
+      # @raise [UnprocessableEntityError] on 422 responses
+      # @raise [RateLimitError] on 429 responses
+      # @raise [ServerError] on 5xx responses
+      #
+      # @api private
+      def post(path, body = {}, params: nil, accept: nil)
+        normalized_path = path.sub(%r{^/}, "")
+        response = perform_request do |conn|
+          conn.post(normalized_path) do |req|
+            req.params.update(params) if params
+            req.headers["Accept"] = accept if accept
+            req.body = JSON.generate(body)
+          end
+        end
+        handle_response(response)
+      end
+
+      private
+
+      # Performs an HTTP request, mapping Faraday errors to gem errors.
+      #
+      # @yieldparam connection [Faraday::Connection] Connection to perform the request on
+      # @return [Faraday::Response] Raw Faraday response
+      #
+      # @raise [TimeoutError] if request times out
+      # @raise [ConnectionError] if connection fails
+      # @raise [NetworkError] for other network errors
+      # @api private
+      def perform_request
+        yield connection
       rescue Faraday::TimeoutError => e
         raise TimeoutError, "Request timed out: #{e.message}"
       rescue Faraday::ConnectionFailed => e
@@ -70,8 +125,6 @@ module ReveAI
       rescue Faraday::Error => e
         raise NetworkError, "Network error: #{e.message}"
       end
-
-      private
 
       # Handles connection failed errors.
       #
@@ -116,7 +169,7 @@ module ReveAI
       # @api private
       def configure_retry(conn)
         conn.request :retry, max: configuration.max_retries, interval: 0.5,
-                             backoff_factor: 2, retry_statuses: RETRY_STATUSES, methods: [:post]
+                             backoff_factor: 2, retry_statuses: RETRY_STATUSES, methods: %i[post get]
       end
 
       # Configures request headers.
@@ -162,7 +215,7 @@ module ReveAI
       # @raise [APIError] on error responses
       # @api private
       def handle_response(response)
-        body = parse_body(response.body)
+        body = parse_body(response)
         return build_success_response(response, body) if response.status.between?(200, 299)
 
         raise_api_error(response.status, body, response.headers.to_h)
@@ -171,37 +224,66 @@ module ReveAI
       # Builds a successful response object.
       #
       # @param response [Faraday::Response] Raw response
-      # @param body [Hash] Parsed body
+      # @param body [Hash, String] Parsed body, or raw bytes for binary responses
       # @return [Response] Response wrapper
       # @api private
       def build_success_response(response, body)
         Response.new(status: response.status, headers: response.headers.to_h, body: body)
       end
 
-      # Parses the response body as JSON.
+      # Parses the response body.
       #
-      # @param body [String, nil] Raw response body
-      # @return [Hash] Parsed body, or empty hash if nil/empty
+      # Bodies with an +image/*+ Content-Type are raw image bytes and are
+      # returned as-is; anything else is parsed as JSON.
+      #
+      # @param response [Faraday::Response] Raw Faraday response
+      # @return [Hash, String] Parsed body, raw bytes String for image
+      #   responses, or empty hash if body is nil/empty
       # @api private
-      def parse_body(body)
-        return {} if body.nil? || body.empty?
+      def parse_body(response)
+        raw = response.body
+        return {} if raw.nil? || raw.empty?
+        return raw if image_content?(response)
 
-        JSON.parse(body, symbolize_names: true)
+        JSON.parse(raw, symbolize_names: true)
       rescue JSON::ParserError
-        { raw: body }
+        { raw: raw }
+      end
+
+      # Checks whether the response carries raw image bytes.
+      #
+      # @param response [Faraday::Response] Raw Faraday response
+      # @return [Boolean] true if Content-Type starts with "image/"
+      # @api private
+      def image_content?(response)
+        response.headers["content-type"].to_s.start_with?("image/")
       end
 
       # Raises the appropriate API error for a status code.
       #
       # @param status [Integer] HTTP status code
-      # @param body [Hash] Parsed response body
+      # @param body [Hash, String] Parsed response body
       # @param headers [Hash] Response headers
       # @raise [APIError] Appropriate error subclass
       # @api private
       def raise_api_error(status, body, headers)
         error_class = ERROR_CODE_MAP[status] || (status >= 500 ? ServerError : APIError)
-        message = body[:message] || body[:error] || "Unknown error"
-        raise error_class.new(message, status: status, body: body, headers: headers)
+        raise error_class.new(extract_error_message(body, headers), status: status, body: body, headers: headers)
+      end
+
+      # Extracts the error message from the response body.
+      #
+      # Falls back to the X-Reve-Error-Code header when the body carries no
+      # message: with an image Accept header, the API answers errors with a
+      # small grey image instead of a JSON error body.
+      #
+      # @param body [Hash, String] Parsed response body
+      # @param headers [Hash] Response headers
+      # @return [String] Error message
+      # @api private
+      def extract_error_message(body, headers)
+        from_body = body.is_a?(Hash) ? body[:message] || body[:error] : nil
+        from_body || headers["x-reve-error-code"] || "Unknown error"
       end
     end
   end

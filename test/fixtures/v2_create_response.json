@@ -1,0 +1,23 @@
+{
+  "image": "aGVsbG8gd29ybGQ=",
+  "layout": {
+    "prompt": "A serene mountain landscape at sunset",
+    "regions": [
+      {
+        "label": "mountain",
+        "prompt": "A snow-capped mountain peak",
+        "bbox": { "x0": 0.0, "y0": 0.0, "x1": 0.5, "y1": 1.0 }
+      },
+      {
+        "label": "lake",
+        "prompt": "A calm alpine lake reflecting the sunset",
+        "bbox": { "x0": 0.5, "y0": 0.6, "x1": 1.0, "y1": 1.0 }
+      }
+    ]
+  },
+  "version": "latest",
+  "content_violation": false,
+  "request_id": "rsid-v2-create-1",
+  "credits_used": 150,
+  "credits_remaining": 880
+}

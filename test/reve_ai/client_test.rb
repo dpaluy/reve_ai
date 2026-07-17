@@ -61,4 +61,32 @@ class ReveAI::ClientTest < Minitest::Test
     client = ReveAI::Client.new(api_key: "key")
     assert_instance_of ReveAI::HTTP::Client, client.http_client
   end
+
+  def test_provides_effects_accessor
+    client = ReveAI::Client.new(api_key: "key")
+    assert_instance_of ReveAI::Resources::Effects, client.effects
+  end
+
+  def test_effects_returns_same_instance
+    client = ReveAI::Client.new(api_key: "key")
+    assert_same client.effects, client.effects
+  end
+
+  def test_provides_v2_accessor
+    client = ReveAI::Client.new(api_key: "key")
+    assert_instance_of ReveAI::Resources::V2, client.v2
+  end
+
+  def test_v2_provides_images_and_layouts_accessors
+    client = ReveAI::Client.new(api_key: "key")
+    assert_instance_of ReveAI::Resources::V2::Images, client.v2.images
+    assert_instance_of ReveAI::Resources::V2::Layouts, client.v2.layouts
+  end
+
+  def test_v2_returns_same_instances
+    client = ReveAI::Client.new(api_key: "key")
+    assert_same client.v2, client.v2
+    assert_same client.v2.images, client.v2.images
+    assert_same client.v2.layouts, client.v2.layouts
+  end
 end

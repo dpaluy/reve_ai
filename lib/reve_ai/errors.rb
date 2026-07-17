@@ -72,22 +72,27 @@ module ReveAI
     # @return [Integer, nil] HTTP status code
     attr_reader :status
 
-    # @return [Hash] Response body parsed as Hash
+    # @return [Hash, String] Response body parsed as Hash, or raw String
+    #   for binary error responses (e.g., grey image bodies)
     attr_reader :body
 
     # @return [Hash] Response headers
     attr_reader :headers
 
+    # @return [Hash, nil] Additional error details from the response body
+    attr_reader :params
+
     # Creates a new API error instance.
     #
     # @param message [String, nil] Error message
     # @param status [Integer, nil] HTTP status code
-    # @param body [Hash, nil] Response body
+    # @param body [Hash, String, nil] Response body
     # @param headers [Hash, nil] Response headers
     def initialize(message = nil, status: nil, body: nil, headers: nil)
       @status = status
       @body = body || {}
       @headers = headers || {}
+      @params = @body.is_a?(Hash) ? @body[:params] : nil
       super(message)
     end
 
@@ -100,11 +105,17 @@ module ReveAI
       headers["x-reve-request-id"]
     end
 
-    # Returns the error code from the response body.
+    # Returns the error code for this error.
+    #
+    # Read from the response body when present, falling back to the
+    # X-Reve-Error-Code header: with an image Accept header, the API answers
+    # errors with a small grey image body and no JSON error code.
     #
     # @return [String, nil] Error code (e.g., "PROMPT_TOO_LONG", "INVALID_API_KEY")
     def error_code
-      body[:error_code]
+      return body[:error_code] if body.is_a?(Hash) && body[:error_code]
+
+      headers["x-reve-error-code"]
     end
   end
 

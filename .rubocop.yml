@@ -22,6 +22,17 @@ Metrics/BlockLength:
 
 Metrics/MethodLength:
   Max: 20
+  Exclude:
+    - "test/**/*"
+
+# API wrapper methods naturally accept many optional keyword arguments
+Metrics/ParameterLists:
+  CountKeywordArgs: false
+
+# WebMock stub setup makes test methods branch-heavy by nature
+Metrics/AbcSize:
+  Exclude:
+    - "test/**/*"
 
 Metrics/ClassLength:
   Max: 150

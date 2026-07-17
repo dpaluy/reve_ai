@@ -1,0 +1,26 @@
+{
+  "layout": {
+    "prompt": "A bottle of rosé wine on a terracotta surface",
+    "regions": [
+      {
+        "label": "bottle 1",
+        "prompt": "Tall, slender glass bottle filled with salmon-pink rosé wine",
+        "bbox": { "x0": 0.371, "y0": 0.07, "x1": 0.511, "y1": 0.869 },
+        "region_type": "coarse_detail"
+      },
+      {
+        "label": "label 1",
+        "prompt": "Off-white rectangular paper label with black serif text",
+        "bbox": { "x0": 0.379, "y0": 0.562, "x1": 0.507, "y1": 0.756 },
+        "parent": "bottle 1",
+        "region_type": "fine_detail"
+      }
+    ],
+    "width": 4672,
+    "height": 3520
+  },
+  "content_violation": false,
+  "request_id": "rsid-v2-extract-1",
+  "credits_used": 80,
+  "credits_remaining": 920
+}

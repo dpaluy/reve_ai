@@ -64,11 +64,38 @@ module ReveAI
     #
     # @example Remix images
     #   result = client.images.remix(
-    #     prompt: "Combine <img>1</img> and <img>2</img> into one scene",
+    #     prompt: "Combine <img>0</img> and <img>1</img> into one scene",
     #     reference_images: [image1_base64, image2_base64]
     #   )
     def images
       @images ||= Resources::Images.new(self)
+    end
+
+    # Returns the Effects resource for listing available effects.
+    #
+    # @return [Resources::Effects] Effects listing interface
+    # @see Resources::Effects
+    #
+    # @example List all effects available to the project
+    #   result = client.effects.list
+    #   result.body[:effects].each { |effect| puts effect[:name] }
+    def effects
+      @effects ||= Resources::Effects.new(self)
+    end
+
+    # Returns the v2 API namespace (image create and layout endpoints).
+    #
+    # @return [Resources::V2] v2 API operations interface
+    # @see Resources::V2
+    #
+    # @example Generate an image with the v2 API
+    #   result = client.v2.images.create(
+    #     prompt: "Remove the people in the background of <frame>0</frame>.",
+    #     references: [{ data: base64_encoded_image }]
+    #   )
+    #   result.layout # => { prompt: "...", regions: [...] }
+    def v2
+      @v2 ||= Resources::V2.new(self)
     end
 
     # Returns the HTTP client for making API requests.

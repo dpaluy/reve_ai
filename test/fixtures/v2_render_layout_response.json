@@ -1,0 +1,25 @@
+{
+  "image": "cmVuZGVyZWRfaW1hZ2U=",
+  "layout": {
+    "prompt": "a person at a cafe",
+    "regions": [
+      {
+        "label": "person",
+        "prompt": "a woman in a red coat",
+        "bbox": { "x0": 0.1, "y0": 0.1, "x1": 0.6, "y1": 0.9 },
+        "region_type": "coarse_detail"
+      },
+      {
+        "label": "table",
+        "prompt": "a small round cafe table",
+        "bbox": { "x0": 0.55, "y0": 0.6, "x1": 0.9, "y1": 0.85 },
+        "region_type": "medium_detail"
+      }
+    ]
+  },
+  "version": "latest",
+  "content_violation": false,
+  "request_id": "rsid-v2-render-1",
+  "credits_used": 150,
+  "credits_remaining": 770
+}

@@ -7,6 +7,10 @@ require_relative "reve_ai/response"
 require_relative "reve_ai/http/client"
 require_relative "reve_ai/resources/base"
 require_relative "reve_ai/resources/images"
+require_relative "reve_ai/resources/effects"
+require_relative "reve_ai/resources/v2"
+require_relative "reve_ai/resources/v2/images"
+require_relative "reve_ai/resources/v2/layouts"
 require_relative "reve_ai/client"
 
 # Ruby client for the Reve image generation API.
