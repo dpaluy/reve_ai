@@ -106,7 +106,7 @@ class ReveAI::Resources::V2::ImagesTest < Minitest::Test
     assert_nil response.layout
   end
 
-  def test_create_accepts_v2_only_aspect_ratios
+  def test_create_accepts_extended_aspect_ratios
     %w[4:1 21:9 5:4 1:2 auto].each do |ratio|
       stub_create.with(body: hash_including(aspect_ratio: ratio)).to_return(success_response)
 

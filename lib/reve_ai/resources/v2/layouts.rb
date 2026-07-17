@@ -69,8 +69,8 @@ module ReveAI
         # @param commands [Array<Hash>, nil] Ordered imperative layout edits;
         #   each entry is a Hash with an +op+ key (add, place, shift, remove,
         #   keep, change) plus op-specific fields
-        # @param aspect_ratio [String, nil] Layout aspect ratio; v2 set
-        #   ({Configuration::V2_ASPECT_RATIOS}), default "auto"
+        # @param aspect_ratio [String, nil] Layout aspect ratio; supported set
+        #   ({Configuration::ASPECT_RATIOS}), default "auto"
         # @param version [String, nil] Optional public model version alias
         # @param breadcrumb [String, nil] Request tracking value sent as the
         #   +breadcrumb+ query parameter; ignored by the API
@@ -90,7 +90,7 @@ module ReveAI
           validate_prompt!(prompt, max_length: Configuration::V2_MAX_PROMPT_LENGTH) if prompt
           validate_compound_references!(references)
           validate_commands!(commands)
-          validate_aspect_ratio!(aspect_ratio, Configuration::V2_ASPECT_RATIOS)
+          validate_aspect_ratio!(aspect_ratio, Configuration::ASPECT_RATIOS)
 
           body = build_create_body(prompt: prompt, references: references, commands: commands,
                                    aspect_ratio: aspect_ratio, version: version)

@@ -68,9 +68,9 @@ class ReveAI::ConfigurationTest < Minitest::Test
     assert_equal 6, ReveAI::Configuration::MAX_REFERENCE_IMAGES
   end
 
-  def test_v2_aspect_ratios_constant
+  def test_aspect_ratios_constant
     expected = %w[4:1 3:1 21:9 2:1 17:9 16:9 3:2 4:3 5:4 1:1 4:5 3:4 2:3 9:16 1:2 1:3 1:4 auto]
-    assert_equal expected, ReveAI::Configuration::V2_ASPECT_RATIOS
+    assert_equal expected, ReveAI::Configuration::ASPECT_RATIOS
   end
 
   def test_v2_max_prompt_length_constant

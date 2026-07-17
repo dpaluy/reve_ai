@@ -217,12 +217,12 @@ class ReveAI::Resources::BaseTest < Minitest::Test
     assert_match(/between 1 and 15/, error.message)
   end
 
-  def test_validate_aspect_ratio_with_custom_list_accepts_v2_ratios
-    @resource.send(:validate_aspect_ratio!, "21:9", ReveAI::Configuration::V2_ASPECT_RATIOS)
-    @resource.send(:validate_aspect_ratio!, "auto", ReveAI::Configuration::V2_ASPECT_RATIOS)
+  def test_validate_aspect_ratio_with_custom_list_accepts_extended_ratios
+    @resource.send(:validate_aspect_ratio!, "21:9", ReveAI::Configuration::ASPECT_RATIOS)
+    @resource.send(:validate_aspect_ratio!, "auto", ReveAI::Configuration::ASPECT_RATIOS)
   end
 
-  def test_validate_aspect_ratio_default_list_rejects_v2_only_ratio
+  def test_validate_aspect_ratio_legacy_default_list_rejects_extended_ratio
     error = assert_raises(ReveAI::ValidationError) do
       @resource.send(:validate_aspect_ratio!, "21:9")
     end
@@ -231,7 +231,7 @@ class ReveAI::Resources::BaseTest < Minitest::Test
 
   def test_validate_aspect_ratio_with_custom_list_rejects_unknown_ratio
     error = assert_raises(ReveAI::ValidationError) do
-      @resource.send(:validate_aspect_ratio!, "7:3", ReveAI::Configuration::V2_ASPECT_RATIOS)
+      @resource.send(:validate_aspect_ratio!, "7:3", ReveAI::Configuration::ASPECT_RATIOS)
     end
     assert_match(/Invalid aspect_ratio/, error.message)
   end

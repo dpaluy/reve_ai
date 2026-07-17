@@ -41,7 +41,7 @@ module ReveAI
         #   project). Entries are serialized as given.
         # @param aspect_ratio [String, nil] Output aspect ratio (defaults to
         #   the API default of "auto", which lets the model pick); v2 supports
-        #   the full set in {Configuration::V2_ASPECT_RATIOS}, including "auto"
+        #   the full set in {Configuration::ASPECT_RATIOS}, including "auto"
         #   and "4:1"
         # @param postprocessing [Array<Hash>, nil] Postprocessing steps, each
         #   with a +process+ key (e.g., { process: "upscale", upscale_factor: 2 })
@@ -96,7 +96,7 @@ module ReveAI
                    test_time_scaling: nil, version: nil, accept: nil, breadcrumb: nil)
           validate_prompt!(prompt, max_length: Configuration::V2_MAX_PROMPT_LENGTH)
           validate_references!(references)
-          validate_aspect_ratio!(aspect_ratio, Configuration::V2_ASPECT_RATIOS)
+          validate_aspect_ratio!(aspect_ratio, Configuration::ASPECT_RATIOS)
           validate_postprocessing!(postprocessing)
           validate_test_time_scaling!(test_time_scaling)
 
