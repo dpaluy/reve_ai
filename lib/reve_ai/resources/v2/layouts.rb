@@ -248,6 +248,7 @@ module ReveAI
 
           validate_raw_image!(image, "Reference at index #{index} 'image'") if image
           validate_reference_layout!(layout, index)
+          validate_reference_prompt!(prompt, index)
         end
 
         # Validates the layout value inside a compound reference.
@@ -260,6 +261,19 @@ module ReveAI
           return if layout.nil? || layout.is_a?(Hash)
 
           raise ValidationError, "Reference at index #{index} 'layout' must be a Hash"
+        end
+
+        # Validates the prompt value inside a compound reference.
+        #
+        # @param prompt [Object] The value to check
+        # @param index [Integer] Position in the references array
+        # @raise [ValidationError] if present and not a non-empty String
+        # @api private
+        def validate_reference_prompt!(prompt, index)
+          return if prompt.nil?
+          return if prompt.is_a?(String) && !prompt.empty?
+
+          raise ValidationError, "Reference at index #{index} 'prompt' must be a non-empty String"
         end
 
         # Validates the target layout for rendering.

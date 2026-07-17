@@ -121,7 +121,7 @@ module ReveAI
       # @return [Boolean] true if value is an Array of Hashes
       # @api private
       def postprocessing_steps?(value)
-        value.is_a?(Array) && value.all? { |step| step.is_a?(Hash) }
+        value.is_a?(Array) && value.all?(Hash)
       end
 
       # Validates a test_time_scaling value.

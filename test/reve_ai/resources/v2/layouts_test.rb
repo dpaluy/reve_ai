@@ -122,6 +122,22 @@ class ReveAI::Resources::V2::LayoutsTest < Minitest::Test
     assert response.success?
   end
 
+  def test_create_rejects_empty_compound_reference_prompt
+    error = assert_raises(ReveAI::ValidationError) do
+      @layouts.create(references: [{ prompt: "" }])
+    end
+
+    assert_match(/prompt.*non-empty String/, error.message)
+  end
+
+  def test_create_rejects_non_string_compound_reference_prompt
+    error = assert_raises(ReveAI::ValidationError) do
+      @layouts.create(references: [{ prompt: 123 }])
+    end
+
+    assert_match(/prompt.*non-empty String/, error.message)
+  end
+
   def test_create_validates_commands
     assert_raises(ReveAI::ValidationError) { @layouts.create(prompt: "x", commands: "add") }
     assert_raises(ReveAI::ValidationError) { @layouts.create(prompt: "x", commands: [{ label: "dog" }]) }
