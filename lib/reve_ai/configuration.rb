@@ -34,7 +34,7 @@ module ReveAI
     # @return [Integer] Default number of retry attempts for failed requests
     DEFAULT_MAX_RETRIES = 2
 
-    # @return [Array<String>] Valid aspect ratios for image generation
+    # @return [Array<String>] Valid aspect ratios for legacy v1 image generation
     VALID_ASPECT_RATIOS = %w[16:9 9:16 3:2 2:3 4:3 3:4 1:1].freeze
 
     # @return [Integer] Maximum allowed prompt length in characters
@@ -42,6 +42,15 @@ module ReveAI
 
     # @return [Integer] Maximum number of reference images for remix operations
     MAX_REFERENCE_IMAGES = 6
+
+    # @return [Array<String>] Valid aspect ratios for image generation
+    ASPECT_RATIOS = %w[4:1 3:1 21:9 2:1 17:9 16:9 3:2 4:3 5:4 1:1 4:5 3:4 2:3 9:16 1:2 1:3 1:4 auto].freeze
+
+    # @return [Integer] Maximum allowed prompt length in characters for v2 endpoints
+    V2_MAX_PROMPT_LENGTH = 4000
+
+    # @return [Integer] Maximum number of references for v2 create operations
+    V2_MAX_REFERENCES = 8
 
     # @return [String, nil] Reve API key for authentication
     attr_accessor :api_key

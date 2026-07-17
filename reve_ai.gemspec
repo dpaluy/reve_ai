@@ -39,6 +39,7 @@ Gem::Specification.new do |spec|
   spec.extra_rdoc_files = Dir["README.md", "CHANGELOG.md", "LICENSE.txt"]
 
   # Runtime dependencies
+  spec.add_dependency "base64", "~> 0.3"
   spec.add_dependency "faraday", "~> 2.0"
   spec.add_dependency "faraday-retry", "~> 2.0"
 end

@@ -50,6 +50,28 @@ class ReveAI::ResponseTest < Minitest::Test
 
     assert_equal "rsid-456", response.request_id
   end
+
+  def test_binary_returns_false_for_hash_body
+    response = ReveAI::Response.new(status: 200, headers: {}, body: {})
+
+    refute response.binary?
+  end
+
+  def test_binary_returns_true_for_string_body
+    response = ReveAI::Response.new(status: 200, headers: {}, body: "\x89PNG".b)
+
+    assert response.binary?
+  end
+
+  def test_request_id_from_headers_with_binary_body
+    response = ReveAI::Response.new(
+      status: 200,
+      headers: { "x-reve-request-id" => "rsid-binary" },
+      body: "\x89PNG".b
+    )
+
+    assert_equal "rsid-binary", response.request_id
+  end
 end
 
 class ReveAI::ImageResponseTest < Minitest::Test
@@ -161,5 +183,177 @@ class ReveAI::ImageResponseTest < Minitest::Test
     )
 
     assert_equal 970, response.credits_remaining
+  end
+
+  def test_layout_returns_layout_hash
+    layout = { prompt: "A cat", regions: [], width: 4096, height: 2560 }
+    response = ReveAI::ImageResponse.new(
+      status: 200,
+      headers: {},
+      body: { layout: layout }
+    )
+
+    assert_equal layout, response.layout
+  end
+
+  def test_layout_returns_nil_when_absent
+    response = ReveAI::ImageResponse.new(
+      status: 200,
+      headers: {},
+      body: {}
+    )
+
+    assert_nil response.layout
+  end
+
+  def test_image_returns_raw_bytes_for_binary_body
+    bytes = "\x89PNG\r\n\x1a\nfake".b
+    response = ReveAI::ImageResponse.new(
+      status: 200,
+      headers: {},
+      body: bytes
+    )
+
+    assert_equal bytes, response.image
+    assert_equal bytes, response.base64
+  end
+
+  def test_binary_body_accessors_fall_back_to_headers
+    response = ReveAI::ImageResponse.new(
+      status: 200,
+      headers: {
+        "x-reve-version" => "latest",
+        "x-reve-credits-used" => "18",
+        "x-reve-credits-remaining" => "982",
+        "x-reve-content-violation" => "false",
+        "x-reve-request-id" => "rsid-binary-1"
+      },
+      body: "\x89PNG\r\n\x1a\nfake".b
+    )
+
+    assert_equal "latest", response.version
+    assert_equal 18, response.credits_used
+    assert_equal 982, response.credits_remaining
+    refute response.content_violation?
+    assert_equal "rsid-binary-1", response.request_id
+  end
+
+  def test_binary_body_accessors_do_not_raise_without_metadata
+    response = ReveAI::ImageResponse.new(status: 200, headers: {}, body: "\x89PNG".b)
+
+    assert response.binary?
+    assert_nil response.version
+    assert_nil response.credits_used
+    assert_nil response.credits_remaining
+    refute response.content_violation?
+    assert_nil response.request_id
+    assert_nil response.layout
+  end
+
+  def test_content_violation_from_headers_for_binary_body
+    response = ReveAI::ImageResponse.new(
+      status: 200,
+      headers: { "x-reve-content-violation" => "true" },
+      body: "\x89PNG".b
+    )
+
+    assert response.content_violation?
+  end
+end
+
+class ReveAI::LayoutResponseTest < Minitest::Test
+  def test_layout_returns_layout_hash
+    layout = { prompt: "A cat", regions: [{ label: "cat" }], width: 4096, height: 2560 }
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: {},
+      body: { layout: layout }
+    )
+
+    assert_equal layout, response.layout
+  end
+
+  def test_layout_returns_nil_when_absent
+    response = ReveAI::LayoutResponse.new(status: 200, headers: {}, body: {})
+
+    assert_nil response.layout
+  end
+
+  def test_content_violation_from_body
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: {},
+      body: { content_violation: true }
+    )
+
+    assert response.content_violation?
+  end
+
+  def test_content_violation_from_headers
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: { "x-reve-content-violation" => "true" },
+      body: {}
+    )
+
+    assert response.content_violation?
+  end
+
+  def test_content_violation_false_by_default
+    response = ReveAI::LayoutResponse.new(status: 200, headers: {}, body: {})
+
+    refute response.content_violation?
+  end
+
+  def test_credits_used_from_body
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: {},
+      body: { credits_used: 4 }
+    )
+
+    assert_equal 4, response.credits_used
+  end
+
+  def test_credits_used_from_headers
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: { "x-reve-credits-used" => "4" },
+      body: {}
+    )
+
+    assert_equal 4, response.credits_used
+  end
+
+  def test_credits_remaining_from_body
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: {},
+      body: { credits_remaining: 996 }
+    )
+
+    assert_equal 996, response.credits_remaining
+  end
+
+  def test_credits_remaining_from_headers
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: { "x-reve-credits-remaining" => "996" },
+      body: {}
+    )
+
+    assert_equal 996, response.credits_remaining
+  end
+
+  def test_accessors_never_raise_for_string_body
+    response = ReveAI::LayoutResponse.new(
+      status: 200,
+      headers: { "x-reve-credits-used" => "4" },
+      body: "unexpected string"
+    )
+
+    assert_nil response.layout
+    assert_equal 4, response.credits_used
+    refute response.content_violation?
   end
 end

@@ -44,7 +44,6 @@ doc/
 .yardoc/
 
 .claude
-.beads
 
 # Agent instructions (local only)
 AGENTS.md

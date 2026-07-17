@@ -53,6 +53,88 @@ class ReveAI::ErrorsTest < Minitest::Test
     assert_equal "PROMPT_TOO_LONG", error.error_code
   end
 
+  def test_api_error_extracts_params_from_body
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: { error_code: "INVALID_PARAMS", params: { aspect_ratio: "invalid" } }
+    )
+
+    assert_equal({ aspect_ratio: "invalid" }, error.params)
+  end
+
+  def test_api_error_params_is_nil_when_body_has_no_params
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: { error_code: "BAD_REQUEST" }
+    )
+
+    assert_nil error.params
+  end
+
+  def test_api_error_params_is_nil_for_string_body
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: "raw bytes"
+    )
+
+    assert_nil error.params
+  end
+
+  def test_api_error_error_code_falls_back_to_header_for_string_body
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: "raw bytes",
+      headers: { "x-reve-error-code" => "CONTENT_POLICY_VIOLATION" }
+    )
+
+    assert_equal "CONTENT_POLICY_VIOLATION", error.error_code
+  end
+
+  def test_api_error_error_code_falls_back_to_header_when_body_lacks_code
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: { message: "Something failed" },
+      headers: { "x-reve-error-code" => "CONTENT_POLICY_VIOLATION" }
+    )
+
+    assert_equal "CONTENT_POLICY_VIOLATION", error.error_code
+  end
+
+  def test_api_error_error_code_prefers_body_over_header
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: { error_code: "PROMPT_TOO_LONG" },
+      headers: { "x-reve-error-code" => "HEADER_CODE" }
+    )
+
+    assert_equal "PROMPT_TOO_LONG", error.error_code
+  end
+
+  def test_api_error_error_code_is_nil_when_absent_everywhere
+    error = ReveAI::APIError.new("Error", status: 400)
+
+    assert_nil error.error_code
+  end
+
+  def test_api_error_string_body_never_raises
+    error = ReveAI::APIError.new(
+      "Error",
+      status: 400,
+      body: "\x89PNG".b
+    )
+
+    assert_equal "\x89PNG".b, error.body
+    assert_nil error.error_code
+    assert_nil error.params
+    assert_nil error.request_id
+  end
+
   def test_unauthorized_error_inherits_from_api_error
     assert ReveAI::UnauthorizedError < ReveAI::APIError
   end

@@ -1,0 +1,14 @@
+{
+  "effects": [
+    {
+      "name": "cmyk_halftone",
+      "description": "CMYK halftone print effect",
+      "source": "builtin",
+      "category": "textures"
+    },
+    {
+      "name": "my-saved-effect",
+      "source": "saved"
+    }
+  ]
+}
