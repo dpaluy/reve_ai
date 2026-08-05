@@ -5,6 +5,12 @@ Ruby client for the [Reve image generation API](https://api.reve.com/console/doc
 [![Gem Version](https://badge.fury.io/rb/reve_ai.svg)](https://badge.fury.io/rb/reve_ai)
 [![ci](https://github.com/dpaluy/reve_ai/actions/workflows/ci.yml/badge.svg)](https://github.com/dpaluy/reve_ai/actions/workflows/ci.yml)
 
+## API sunset notice
+
+> **Reve's public API sunsets Friday, August 14, 2026.** Existing approved API users retain access through the sunset window; all other users can no longer access it, and new API onboarding is closed. Unused paid credits begin full-refund processing Monday, August 17, 2026.
+
+This gem is deprecated and will be unmaintained after the API shutdown. No further feature development or maintenance is planned.
+
 ## Installation
 
 ```
@@ -459,15 +465,13 @@ bundle exec rake test
 bundle exec rubocop
 ```
 
-## Release  
+## Release
 
-```sh 
-bundle exec rake release
-```
+This gem is deprecated, and no further feature releases are planned.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/dpaluy/reve_ai.
+This project is deprecated and will be unmaintained after the API shutdown. Contributions for new features or ongoing maintenance are no longer being accepted.
 
 ## License
 

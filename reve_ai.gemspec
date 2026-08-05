@@ -8,9 +8,10 @@ Gem::Specification.new do |spec|
   spec.authors = ["dpaluy"]
   spec.email = ["dpaluy@users.noreply.github.com"]
 
-  spec.summary = "Ruby client for the Reve image generation API."
-  spec.description = "ReveAI provides a lightweight Faraday-based wrapper for the Reve image generation API " \
-                     "(create, edit, remix images)."
+  spec.summary = "Deprecated Ruby client for Reve's sunset image generation API."
+  spec.description = "ReveAI was a lightweight Faraday-based wrapper for the Reve image generation API " \
+                     "(create, edit, remix images). The upstream public API sunsets on August 14, 2026; " \
+                     "this gem is deprecated and will be unmaintained after the shutdown."
   spec.homepage = "https://github.com/dpaluy/reve_ai"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.0.0"
@@ -21,6 +22,15 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = "https://github.com/dpaluy/reve_ai"
   spec.metadata["changelog_uri"] = "https://github.com/dpaluy/reve_ai/blob/master/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "https://github.com/dpaluy/reve_ai/issues"
+  spec.metadata["deprecated"] = "true"
+
+  spec.post_install_message = <<~MESSAGE
+    WARNING: The upstream Reve public API sunsets Friday, August 14, 2026.
+    This gem is deprecated and will be unmaintained after the shutdown.
+    Existing approved API users retain access through the sunset window; all other users can no longer access it, and new API onboarding is closed.
+    Unused paid credits begin full-refund processing Monday, August 17, 2026.
+    See the repository README for details: https://github.com/dpaluy/reve_ai#api-sunset-notice
+  MESSAGE
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
